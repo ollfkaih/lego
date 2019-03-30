@@ -4,6 +4,7 @@
 django-debug-toolbar==1.11
 tox==3.6.1
 
+-r mypy.txt
 -r flake8.txt
 -r isort.txt
 -r black.txt
