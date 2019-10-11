@@ -3,6 +3,8 @@ from rest_framework import viewsets
 
 from lego.apps.joblistings.filters import JoblistingFilterSet
 from lego.apps.joblistings.models import Joblisting
+from lego.apps.companies.models import Company
+from lego.apps.users.models import User
 from lego.apps.joblistings.serializer import (
     JoblistingCreateAndUpdateSerializer,
     JoblistingDetailedSerializer,
@@ -31,3 +33,11 @@ class JoblistingViewSet(AllowedPermissionsMixin, viewsets.ModelViewSet):
                 visible_from__lte=timezone.now(), visible_to__gte=timezone.now()
             )
         return Joblisting.objects.all()
+
+
+    def create(self, request, *args, **kwargs):
+        # Get list of subscribers
+        ## Subscription is a ManyToManyField
+        Company.objects.filter(subscription=request.data.company)
+        # Create notifications and send them to the subscribers
+        return super().create()

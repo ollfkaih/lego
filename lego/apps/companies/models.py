@@ -52,6 +52,8 @@ class Company(BasisModel):
     active = models.BooleanField(default=True)
     payment_mail = models.EmailField(max_length=100, blank=True)
     comments = GenericRelation(Comment)
+    # A user can subscribe to many companies, and a company can have many subscribers
+    subscription = models.ManyToManyField(to="users.User")
 
     logo = FileField(related_name="company_logos")
 
