@@ -1,6 +1,10 @@
+import logging
+
 from lego.apps.search.backend import SearchBacked
 
 from .. import registry
+
+log = logging.getLogger(__name__)
 
 
 class PostgresBackend(SearchBacked):
@@ -22,6 +26,7 @@ class PostgresBackend(SearchBacked):
         return self.autocomplete(query, content_types)
 
     def autocomplete(self, query, content_types=None):
+        log.info("PSQL search on: ", query)
         if content_types is None or len(content_types) == 0:
             content_types = registry.index_registry.keys()
 

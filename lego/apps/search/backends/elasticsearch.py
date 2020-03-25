@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
@@ -7,6 +9,8 @@ from elasticsearch import Elasticsearch, NotFoundError
 from elasticsearch.helpers import bulk
 
 from lego.apps.search.backend import SearchBacked
+
+log = logging.getLogger(__name__)
 
 
 class ElasticsearchBackend(SearchBacked):
@@ -188,6 +192,7 @@ class ElasticsearchBackend(SearchBacked):
         )
 
     def autocomplete(self, query, content_types=None):
+        log.info("ELASTICSEARCH on:", query)
         autocomplete_query = {
             "suggest": {
                 "autocomplete": {
