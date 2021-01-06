@@ -201,6 +201,8 @@ class UsersViewSet(AllowedPermissionsMixin, viewsets.ModelViewSet):
                     is_consenting=request.data.get("is_consenting"),
                 )
             else:
+                if not photo_consent.is_consenting:
+                    raise ValueError("Withdrawn photo consents cannot be reverted.")
                 photo_consent.is_consenting = request.data.get("is_consenting")
                 photo_consent.save()
         return Response(MeSerializer(user).data)
