@@ -29,6 +29,7 @@ SERVER_URL = env("SERVER_URL")
 FRONTEND_URL = env("FRONTEND_URL")
 SERVER_EMAIL = env("SERVER_EMAIL", default="Abakus <no-reply@abakus.no>")
 ENVIRONMENT_NAME = env("ENVIRONMENT_NAME", default="production")
+INTERESTGROUP_REQUEST_EMAIL = env("INTERESTGROUP_REQUEST_MAIL", default="henrik.sontvedt@abakus.no")
 
 # Database
 DATABASES = {"default": env.db()}

@@ -1,11 +1,10 @@
-
 {% extends "email/base.html" %}
 
 {% block alert %}
 
     <tr>
         <td class="alert alert-info">
-            Kontaktskjema - {{ recipient_group }}
+            Det har kommet en søknad om opprettelse av en ny interessegruppe!
         </td>
     </tr>
 
@@ -15,19 +14,19 @@
 
     <tr>
         <td class="content-block">
-            Tittel: {{title}}
+            {{ from_name }} ({{ from_email }}) ønsker å opprette følgende gruppe:
         </td>
     </tr>
 
     <tr>
         <td class="content-block">
-            Avsender: {{from_name}} {{from_email}}
+            <p><b>Navn på interessegruppe:</b> {{ group_name }} </p>
         </td>
     </tr>
 
     <tr>
         <td class="content-block">
-            {{message}}
+            <p><b>Beskrivelse:</b> {{ description}} </p>
         </td>
     </tr>
 

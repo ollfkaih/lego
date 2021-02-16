@@ -43,6 +43,8 @@ CACHES = {
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+INTERESTGROUP_REQUEST_EMAIL = os.environ.get("INTERESTGROUP_REQUEST_MAIL", default="noreply@abakus.no")
+
 INTERNAL_IPS = ["127.0.0.1"]
 INSTALLED_APPS += ["debug_toolbar"]
 MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]

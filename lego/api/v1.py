@@ -64,6 +64,7 @@ from lego.apps.surveys.views import (
 )
 from lego.apps.tags.views import TagViewSet
 from lego.apps.users.views.abakus_groups import AbakusGroupViewSet
+from lego.apps.users.views.request_interest_group import RequestInterestGroupViewSet
 from lego.apps.users.views.membership_history import MembershipHistoryViewSet
 from lego.apps.users.views.memberships import MembershipViewSet
 from lego.apps.users.views.password_change import ChangePasswordViewSet
@@ -108,6 +109,7 @@ router.register(
 )
 router.register(r"company-semesters", SemesterViewSet, base_name="company-semester")
 router.register(r"contact-form", ContactFormViewSet, base_name="contact-form")
+router.register(r"request-interest-group", RequestInterestGroupViewSet, base_name="request-interest-group")
 router.register(r"device-apns", APNSDeviceViewSet)
 router.register(r"device-gcm", GCMDeviceViewSet)
 router.register(r"email-lists", EmailListViewSet, base_name="email-lists")

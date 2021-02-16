@@ -1,0 +1,14 @@
+{% extends "email/base.txt" %}
+
+{% block content %}
+
+{{ from_name }} ønsker å opprette følgende gruppe:
+
+Navn på interessegruppe: {{ group_name }}
+
+Beskrivelse: {{ description }}
+
+Ærbødigst,
+Abakus Interessegruppe-form
+
+{% endblock %}

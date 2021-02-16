@@ -1,4 +1,6 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from lego.apps.permissions.api.views import AllowedPermissionsMixin
 from lego.apps.permissions.constants import EDIT
@@ -35,7 +37,7 @@ class AbakusGroupViewSet(AllowedPermissionsMixin, viewsets.ModelViewSet):
             if abakus_group.type in constants.PUBLIC_GROUPS:
                 return PublicDetailedAbakusGroupSerializer
             return PublicAbakusGroupSerializer
-
+            
         return DetailedAbakusGroupSerializer
 
     def get_queryset(self):
