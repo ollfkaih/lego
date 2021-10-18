@@ -159,7 +159,7 @@ steps:
 
 services:
   - name: database
-    image: postgres:9.5
+    image: postgres:12.3
     environment:
       POSTGRES_USER: lego
       POSTGRES_HOST_AUTH_METHOD: trust
@@ -168,4 +168,4 @@ services:
 
 ---
 kind: signature
-hmac: dc7390493f4ba831e57c617c1c5486591194a6ec3de49f030d0329c82d0f2644
+hmac: 8d44e0741d58cd9c5753007d4235bf08ccc8956ae82eafd425e74c9cf48fe1ec
