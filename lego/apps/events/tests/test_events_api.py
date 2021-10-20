@@ -39,7 +39,7 @@ _test_event_data = [
         "startTime": "2011-09-01T13:20:30Z",
         "endTime": "2012-09-01T13:20:30Z",
         "mergeTime": "2012-01-01T13:20:30Z",
-        "isAbakomOnly": False,
+        "canViewGroups": [],
         "pools": [
             {
                 "name": "Initial Pool",
@@ -59,7 +59,8 @@ _test_event_data = [
         "startTime": "2015-09-01T13:20:30Z",
         "endTime": "2015-09-01T13:20:30Z",
         "mergeTime": "2016-01-01T13:20:30Z",
-        "isAbakomOnly": True,
+        "canViewGroups": [20],
+        "requireAuth": True,
         "pools": [
             {
                 "name": "Initial Pool 1",
@@ -85,7 +86,8 @@ _test_event_data = [
         "startTime": "2015-09-01T13:20:30Z",
         "endTime": "2015-09-01T13:20:30Z",
         "mergeTime": "2016-01-01T13:20:30Z",
-        "isAbakomOnly": True,
+        "canViewGroups": [20],
+        "requireAuth": True,
         "pools": [
             {
                 "name": "Initial Pool 1",
@@ -105,7 +107,8 @@ _test_event_data = [
         "startTime": "2015-09-01T13:20:30Z",
         "endTime": "2015-09-01T13:20:30Z",
         "mergeTime": "2016-01-01T13:20:30Z",
-        "isAbakomOnly": True,
+        "canViewGroups": [20],
+        "requireAuth": True,
         "pools": [
             {
                 "name": "Initial Pool 1",
@@ -125,7 +128,8 @@ _test_event_data = [
         "startTime": "2015-09-01T13:20:30Z",
         "endTime": "2015-09-01T13:20:30Z",
         "mergeTime": "2016-01-01T13:20:30Z",
-        "isAbakomOnly": True,
+        "canViewGroups": [20],
+        "requireAuth": True,
         "pools": [
             {
                 "name": "Initial Pool 1",
@@ -144,7 +148,8 @@ _test_event_data = [
         "startTime": "2015-09-01T13:20:30Z",
         "endTime": "2015-09-01T13:20:30Z",
         "mergeTime": "2016-01-01T13:20:30Z",
-        "isAbakomOnly": True,
+        "canViewGroups": [20],
+        "requireAuth": True,
         "pools": [
             {
                 "name": "Initial Pool 1",
@@ -164,7 +169,6 @@ _test_event_data = [
         "startTime": "2015-09-01T13:20:30Z",
         "endTime": "2015-09-01T13:20:30Z",
         "mergeTime": "2016-01-01T13:20:30Z",
-        "isAbakomOnly": False,
     },
 ]
 
@@ -262,7 +266,7 @@ class ListEventsTestCase(BaseAPITestCase):
         self.client.force_authenticate(self.abakus_user)
         event_response = self.client.get(_get_list_url())
         self.assertEqual(event_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(event_response.json()["results"]), 10)
+        self.assertEqual(len(event_response.json()["results"]), 12)
 
 
 class RetrieveEventsTestCase(BaseAPITestCase):
@@ -315,27 +319,35 @@ class RetrieveEventsTestCase(BaseAPITestCase):
         for pool in event_response.json()["pools"]:
             self.assertIsNotNone(pool.get("registrations", None))
 
-    def test_without_auth_permission_abakom_only(self):
+    def test_without_auth_permission_group_only(self):
         """Test that unauth user cannot retrieve abakom only event"""
-        event = Event.objects.get(title="ABAKOM_ONLY")
+        event = Event.objects.get(title="GROUP_ONLY")
         self.client.force_authenticate(self.abakus_user)
         event_response = self.client.get(_get_detail_url(event.id))
         self.assertEqual(event_response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_without_group_permission_abakom_only(self):
-        """Test that auth user cannot retrieve abakom only event"""
-        event = Event.objects.get(title="ABAKOM_ONLY")
-        self.client.force_authenticate(self.abakus_user)
-        event_response = self.client.get(_get_detail_url(event.id))
-        self.assertEqual(event_response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_with_group_permission_abakom_only(self):
-        """Test that abakom user can retrieve abakom only event"""
+    def test_with_group_permission_group_view_only(self):
+        """Test that a bedkom user can retrive bedkom only event"""
         AbakusGroup.objects.get(name="Bedkom").add_user(self.abakus_user)
-        event = Event.objects.get(title="ABAKOM_ONLY")
+        event = Event.objects.get(title="GROUP_ONLY")
         self.client.force_authenticate(self.abakus_user)
         event_response = self.client.get(_get_detail_url(event.id))
-        self.assertEqual(event_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(event_response.status_code, 200)
+
+    def test_without_group_permission_webkom_only(self):
+        """Test that a non-webkom user cannot retrive webkom only event"""
+        event = Event.objects.get(title="WEBKOM_ONLY")
+        self.client.force_authenticate(self.abakus_user)
+        event_response = self.client.get(_get_detail_url(event.id))
+        self.assertEqual(event_response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_with_interestgroup_permission_webkom_only(self):
+        """Test that a interestgroup member cannot retrive webkom only event"""
+        AbakusGroup.objects.get(name="TestInterestGroup").add_user(self.abakus_user)
+        event = Event.objects.get(title="WEBKOM_ONLY")
+        self.client.force_authenticate(self.abakus_user)
+        event_response = self.client.get(_get_detail_url(event.id))
+        self.assertEqual(event_response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_payment_status_hidden_when_not_priced(self):
         """Test that paymentStatus is hidden when getting nonpriced event"""
@@ -506,12 +518,10 @@ class CreateEventsTestCase(BaseAPITestCase):
             "startTime",
             "endTime",
             "mergeTime",
-            "isAbakomOnly",
         ]:
             self.assertEqual(res_event[key], expect_event[key])
         created_event = Event.objects.get(id=self.event_id)
         self.assertFalse(created_event.require_auth)
-        self.assertEqual(created_event.can_view_groups.count(), 0)
 
         expect_pools = camelize(expect_event["pools"])
         res_pools = res_event["pools"]
@@ -535,9 +545,11 @@ class CreateEventsTestCase(BaseAPITestCase):
             "startTime",
             "endTime",
             "mergeTime",
-            "isAbakomOnly",
         ]:
             self.assertEqual(res_event[key], expect_event[key])
+        self.assertEqual(
+            res_event["canViewGroups"][0]["id"], expect_event["canViewGroups"][0]
+        )
         created_event = Event.objects.get(id=event_id)
         self.assertEqual(created_event.event_status_type, "TBA")
         self.assertEqual(created_event.location, "TBA")
@@ -559,9 +571,11 @@ class CreateEventsTestCase(BaseAPITestCase):
             "location",
             "endTime",
             "mergeTime",
-            "isAbakomOnly",
         ]:
             self.assertEqual(res_event[key], expect_event[key])
+        self.assertEqual(
+            res_event["canViewGroups"][0]["id"], expect_event["canViewGroups"][0]
+        )
         created_event = Event.objects.get(id=self.event_id)
         self.assertEqual(created_event.event_status_type, "OPEN")
         self.assertEqual(len(created_event.pools.all()), 0)
@@ -582,9 +596,11 @@ class CreateEventsTestCase(BaseAPITestCase):
             "location",
             "endTime",
             "mergeTime",
-            "isAbakomOnly",
         ]:
             self.assertEqual(res_event[key], expect_event[key])
+        self.assertEqual(
+            res_event["canViewGroups"][0]["id"], expect_event["canViewGroups"][0]
+        )
         created_event = Event.objects.get(id=self.event_id)
         self.assertEqual(created_event.event_status_type, "INFINITE")
         self.assertEqual(len(created_event.pools.all()), 1)
@@ -627,14 +643,15 @@ class CreateEventsTestCase(BaseAPITestCase):
             "startTime",
             "endTime",
             "mergeTime",
-            "isAbakomOnly",
+            "requireAuth",
         ]:
             self.assertEqual(res_event[key], expect_event[key])
         updated_event = Event.objects.get(id=self.event_id)
-        abakom_group = AbakusGroup.objects.get(name="Abakom")
         self.assertTrue(updated_event.require_auth)
         self.assertEqual(updated_event.can_view_groups.count(), 1)
-        self.assertEqual(updated_event.can_view_groups.first(), abakom_group)
+        self.assertEqual(
+            res_event["canViewGroups"][0]["id"], expect_event["canViewGroups"][0]
+        )
 
     def test_event_update_without_perm(self):
         """Test updating event attributes without permissions is not allowed"""
@@ -675,11 +692,9 @@ class CreateEventsTestCase(BaseAPITestCase):
             "startTime",
             "endTime",
             "mergeTime",
-            "isAbakomOnly",
+            "canViewGroups",
         ]:
             self.assertEqual(res_event[key], expect_event[key])
-        event = Event.objects.get(id=self.event_id)
-        self.assertEqual(0, event.can_view_groups.count())
 
     def test_event_update_with_pool_creation(self):
         """Test updating event attributes and add a pool"""
@@ -700,7 +715,6 @@ class CreateEventsTestCase(BaseAPITestCase):
             "startTime",
             "endTime",
             "mergeTime",
-            "isAbakomOnly",
         ]:
             self.assertEqual(res_event[key], expect_event[key])
 
@@ -732,7 +746,6 @@ class CreateEventsTestCase(BaseAPITestCase):
             "startTime",
             "endTime",
             "mergeTime",
-            "isAbakomOnly",
         ]:
             self.assertEqual(res_event[key], expect_event[key])
 
@@ -759,7 +772,7 @@ class CreateEventsTestCase(BaseAPITestCase):
             "startTime",
             "endTime",
             "mergeTime",
-            "isAbakomOnly",
+            "canViewGroups",
         ]:
             self.assertEqual(res_event[key], expect_event[key])
         event = Event.objects.get(id=self.event_id)
