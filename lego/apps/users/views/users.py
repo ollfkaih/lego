@@ -9,7 +9,7 @@ from structlog import get_logger
 
 from lego.apps.jwt.handlers import get_jwt_token
 from lego.apps.permissions.api.views import AllowedPermissionsMixin
-from lego.apps.permissions.constants import CREATE, EDIT
+from lego.apps.permissions.constants import CREATE, DELETE, EDIT
 from lego.apps.users import constants
 from lego.apps.users.models import AbakusGroup, User
 from lego.apps.users.registrations import Registrations
@@ -173,3 +173,15 @@ class UsersViewSet(AllowedPermissionsMixin, viewsets.ModelViewSet):
                 newGrade.add_user(user)
 
         return Response(MeSerializer(user).data)
+
+    def delete_user(self, request, *args, **kwargs):
+        """
+        Attempts to force delete user
+        """
+        if not request.user.has_perm(DELETE, User):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        user = self.get_object()
+
+        with transaction.atomic():
+            user.delete(force=True)
+        return Response(status=status.HTTP_204_NO_CONTENT)
